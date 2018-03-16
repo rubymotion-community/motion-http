@@ -6,6 +6,12 @@ Supported platforms:
 - iOS, macOS, tvOS, watchOS
 - Android
 
+This gem depends on two really popular networking libraries:
+- [AFNetworking](https://github.com/AFNetworking/AFNetworking) (for Cocoa platforms)
+- [OkHttp](http://square.github.io/okhttp/) (for Android)
+
+Please note that this library is still a work in progress. Please report bugs and suggestions for improvement!
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -80,9 +86,9 @@ end
 
 `PUT`, `PATCH`, and `DELETE` requests work the same way:
 ```ruby
-Motion::HTTP.put(url, params)
-Motion::HTTP.patch(url, params)
-Motion::HTTP.delete(url, params)
+Motion::HTTP.put(url, params) { ... }
+Motion::HTTP.patch(url, params) { ... }
+Motion::HTTP.delete(url, params) { ... }
 ```
 
 ### Advanced Usage
