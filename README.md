@@ -24,6 +24,12 @@ And then execute:
     $ rake pod:install # for iOS apps
     $ rake gradle:install # for Android apps
 
+### iOS Specific Configuration
+
+If you will be making insecure HTTP requests (not HTTPS), you will need to explicitly allow insecure HTTP requests by adding this line to your app's configuration in your Rakefile:
+
+    app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
+
 ## Usage
 
 Using `Motion::HTTP` is quick and easy. You can use the simple approach for making one-off requests, or the advanced approach of creating a reusable API client for further customization.
