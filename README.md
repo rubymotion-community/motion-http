@@ -102,12 +102,12 @@ Motion::HTTP.delete(url, params) { ... }
 A common use case is to create a reusable HTTP client that uses a common base URL or request headers.
 
 ```ruby
-client = Motion::HTTPClient.new("http://www.example.com")
+client = Motion::HTTP::Client.new("http://www.example.com")
 # Set or replace a header
 client.header "X-API-TOKEN", "abc123xyz"
 # It is valid for some headers to appear multiple times (Accept, Vary, etc).
-# Use add_header to append multiple headers of the same name.
-client.add_header "Accept", "application/json"
+# Use add_header to append multiple headers of the same name (after creating with #header) .
+client.header "Accept", "application/json"
 client.add_header "Accept", "application/vnd.api+json"
 ```
 
