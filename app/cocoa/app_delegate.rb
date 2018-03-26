@@ -1,9 +1,3 @@
-# class AppDelegate
-#   def application(application, didFinishLaunchingWithOptions:launchOptions)
-#     true
-#   end
-# end
-
 class AppDelegate
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     # rootViewController = UIViewController.alloc.init
@@ -16,7 +10,7 @@ class AppDelegate
     # @window.rootViewController = navigationController
     # @window.makeKeyAndVisible
     #
-    # get_json_request
+    get_json_request
 
     true
   end
