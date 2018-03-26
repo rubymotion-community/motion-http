@@ -1,7 +1,7 @@
 class Motion
   class HTTP
     class Client
-      attr_reader :base_url, :headers
+      attr_reader :base_url
 
       def initialize(base_url = nil)
         @base_url = base_url || ""
@@ -9,11 +9,20 @@ class Motion
       end
 
       def header(key, value)
-        headers.set(key, value)
+        @headers.set(key, value)
       end
 
       def add_header(key, value)
-        headers.add(key, value)
+        @headers.add(key, value)
+      end
+
+      def headers(hash = nil)
+        if hash
+          hash.each do |key, value|
+            @headers.set(key, value)
+          end
+        end
+        @headers
       end
 
       # FIXME: doesn't work on Android
@@ -24,11 +33,11 @@ class Motion
       # end
 
       def get(path, params = nil, &callback)
-        Request.new(:get, base_url + path, headers, params, &callback).call
+        Request.new(:get, base_url + path, @headers, params, &callback).call
       end
 
       def post(path, params = nil, &callback)
-        Request.new(:post, base_url + path, headers, params, &callback).call
+        Request.new(:post, base_url + path, @headers, params, &callback).call
       end
     end
   end

@@ -11,7 +11,8 @@ class Motion
 
       def add(key, value)
         key = key.downcase
-        if @headers[key] && !@headers[key].is_a?(Array)
+        @headers[key] ||= []
+        unless @headers[key].is_a?(Array)
           @headers[key] = [@headers[key]]
         end
         @headers[key] << value
