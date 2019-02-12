@@ -7,3 +7,4 @@ gem 'rake'
 gem 'motion-cocoapods', require: false
 gem 'motion-gradle', require: false
 gem 'webstub'
+gem 'redpotion' # for dummy app
