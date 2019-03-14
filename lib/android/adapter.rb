@@ -7,8 +7,12 @@ class Motion
         @client ||= Okhttp3::OkHttpClient.new
       end
 
-      def self.request(http_method, url, headers, params = nil, &callback)
-        puts "starting #{http_method.to_s.upcase} #{url}"
+      def self.perform(request, &callback)
+        http_method = request.http_method
+        url = request.url
+        headers = request.headers
+        params = request.params
+
         request = OkHttp3::Request::Builder.new
         request.url(url) # TODO: encode GET params and append to URL prior to calling this method
         headers.each do |key, value|
@@ -23,17 +27,18 @@ class Motion
           # body = OkHttp3::RequestBody.create(JSONMediaType, params) # TODO: allow other content types
           # request.method(http_method.to_s, body)
         end
-        client.newCall(request.build).enqueue(OkhttpCallback.new(callback))
+        client.newCall(request.build).enqueue(OkhttpCallback.new(request, callback))
       end
 
       class OkhttpCallback
-        def initialize(callback)
+        def initialize(request, callback)
+          @request = request
           @callback = callback
         end
 
         def onFailure(call, e)
           puts "Error: #{e.getMessage}"
-          @callback.call(Response.new(nil, Headers.new, e.getMessage))
+          @callback.call(Response.new(@request, nil, Headers.new, e.getMessage))
         end
 
         def onResponse(call, response)
@@ -49,9 +54,7 @@ class Motion
             headers.add(key, value)
             i += 1
           end
-          body_string = response.body.string
-          json = JSON.load(body_string) if headers['content-type'] =~ /application\/json/
-          Response.new(response.code, headers, body_string, json)
+          Response.new(@request, response.code, headers, response.body.string)
         end
       end
     end

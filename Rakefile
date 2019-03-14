@@ -18,13 +18,13 @@ Motion::Project::App.setup do |app|
   app.name = 'motion-http'
 
   if template == 'android'
-    app.api_version = '23'
-    app.target_api_version = '23'
-    app.archs = ['armv5s', 'x86']
-    app.files.delete_if { |path| path.start_with?('./app/cocoa') }
+    # app.api_version = '23'
+    # app.target_api_version = '23'
+    # app.archs = ['armv5s', 'x86']
+    app.files.delete_if { |path| path.is_a?(String) && path.start_with?('./app/cocoa') }
   else
     # Only iOS
-    app.files.delete_if {|path| path.start_with?('./app/android') }
+    app.files.delete_if {|path| path.is_a?(String) && path.start_with?('./app/android') }
     app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
   end
 end

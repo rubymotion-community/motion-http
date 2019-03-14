@@ -1,19 +1,19 @@
 class Motion
   class HTTP
     class Request
-      attr_reader :method, :url, :headers, :body, :callback
+      attr_reader :http_method, :url, :headers, :params, :options
 
-      def initialize(method, url, headers = nil, params = nil, &callback)
-        @method = method
+      def initialize(http_method, url, headers = nil, params = nil, options = nil)
+        @http_method = http_method
         @url = url
         @headers = headers || Headers.new
-        @body = params # TODO: turn params into body and set content-type?
-        @callback = callback || ->(response) {}
+        @params = params
+        @options = options
       end
 
-      def call
-        # TODO: maybe pass self instead of args
-        Adapter.request(method, url, headers, body, &callback)
+      def perform(&callback)
+        Motion::HTTP.logger.log_request(self)
+        Adapter.perform(self, &callback)
       end
     end
   end

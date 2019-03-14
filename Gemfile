@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'motion-cocoapods', require: false
 gem 'motion-gradle', require: false
-gem 'webstub'
-gem 'redpotion' # for dummy app
+gem 'webstub', require: false
+gem 'redpotion', require: false # for dummy app

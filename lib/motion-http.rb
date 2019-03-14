@@ -16,11 +16,7 @@ Motion::Project::App.setup do |app|
       dependency "com.squareup.okhttp3:okhttp:3.9.0"
     end
   when :ios, :tvos, :osx, :watchos, :'ios-extension'
-    require "motion-cocoapods"
     app.files.unshift(*Dir.glob(File.join(lib_dir_path, "cocoa/**/*.rb")))
-    app.pods do
-      pod "AFNetworking", "~> 3.1"
-    end
   else
     raise "Project template #{Motion::Project::App.template} not supported by motion-http"
   end

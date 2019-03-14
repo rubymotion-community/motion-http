@@ -1,44 +1,55 @@
 class Motion
   class HTTP
     class Adapter
-      def self.manager
-        @manager ||= AFHTTPSessionManager.manager
+      def self.perform(request, &callback)
+        Motion::HTTP::Adapter::Request.new(request).perform(&callback)
       end
 
-      def self.request(http_method, url, headers, params = nil, &callback)
-        progress = nil
-        on_success = lambda do |task, response_object|
-          response = task.response
-          callback.call(Response.new(response.statusCode, Headers.new(response.allHeaderFields), nil, response_object))
-        end
-        on_error = lambda do |operation, error|
-          NSLog("Error: %@", error)
-          response = operation.response
-          status_code = response.statusCode if response
-          response_headers = response.allHeaderFields if response
-          error_message = error.localizedDescription
-          error_message += error.userInfo[NSLocalizedDescriptionKey] if error.userInfo[NSLocalizedDescriptionKey]
-          callback.call(
-            Response.new(status_code, Headers.new(response_headers), error_message)
-          )
+      class Request
+        def initialize(request)
+          @request = request
+          @session = NSURLSession.sessionWithConfiguration(NSURLSessionConfiguration.defaultSessionConfiguration, delegate: self, delegateQueue: nil)
         end
 
-        case http_method
-        when :get
-          manager.GET url, parameters: params, progress: progress, success: on_success, failure: on_error
-        when :post
-          manager.POST url, parameters: params, progress: progress, success: on_success, failure: on_error
-        when :put
-          manager.PUT url, parameters: params, progress: progress, success: on_success, failure: on_error
-        when :patch
-          manager.PATCH url, parameters: params, progress: progress, success: on_success, failure: on_error
-        when :delete
-          manager.DELETE url, parameters: params, progress: progress, success: on_success, failure: on_error
+        def perform(&callback)
+          # TODO: dataTask is good for general HTTP requests but not for file downloads
+          ns_url_request = build_ns_url_request
+          task = @session.dataTaskWithRequest(ns_url_request, completionHandler: -> (data, response, error) {
+            if error
+              NSLog("Error: %@", error) # TODO: use configurable logging
+              error_message = error.localizedDescription
+              error_message += error.userInfo[NSLocalizedDescriptionKey] if error.userInfo[NSLocalizedDescriptionKey]
+              response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), error_message)
+            else
+              response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), data.to_s)
+            end
+            Motion::HTTP.logger.log_response(response)
+            callback.call(response)
+          })
+          task.resume
         end
 
-        # FIXME: dynamically calling the method using send results in a crash
-        # method_signature = "#{http_method.to_s.upcase}:parameters:progress:success:failure:"
-        # # manager.send(method_signature, url, params, nil, on_success, on_error)
+        def build_ns_url_request
+          ns_url_request = NSMutableURLRequest.alloc.initWithURL(NSURL.URLWithString(@request.url))
+          ns_url_request.HTTPMethod = @request.http_method.to_s.upcase
+          if @request.params
+            # TODO: json serialization
+            ns_url_request.setValue('application/x-www-form-urlencoded', forHTTPHeaderField: 'Content-Type')
+            ns_url_request.HTTPBody = FormDataSerializer.serialize(@request.params).dataUsingEncoding(NSUTF8StringEncoding)
+          end
+          # TODO: add other headers
+          ns_url_request
+        end
+
+        # NSURLSessionTaskDelegate methods
+
+        def URLSession(session, task: task, willPerformHTTPRedirection: response, newRequest: request, completionHandler: completion_handler)
+          if @request.options[:follow_redirects] == false
+            completion_handler.call(nil)
+          else
+            completion_handler.call(request)
+          end
+        end
       end
     end
   end

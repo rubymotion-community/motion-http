@@ -1,14 +1,12 @@
 # motion-http
 
-Motion::HTTP is a cross-platform HTTP Client for RubyMotion that's quick and easy to use.
+A cross-platform HTTP Client for RubyMotion that's quick and easy to use.
 
 Supported platforms:
 - iOS, macOS, tvOS, watchOS
 - Android
 
-This gem depends on two really popular networking libraries:
-- [AFNetworking](https://github.com/AFNetworking/AFNetworking) (for Cocoa platforms)
-- [OkHttp](http://square.github.io/okhttp/) (for Android)
+On Android, this gem depends on the super popular [OkHttp](http://square.github.io/okhttp/) networking library.
 
 Please note that this library is still a work in progress. Please report bugs and suggestions for improvement!
 
@@ -21,7 +19,6 @@ Add this line to your application's Gemfile:
 And then execute:
 
     $ bundle
-    $ rake pod:install # for iOS apps
     $ rake gradle:install # for Android apps
 
 ### iOS Specific Configuration
@@ -32,22 +29,21 @@ If you will be making insecure HTTP requests (not HTTPS), you will need to expli
 
 ## Usage
 
-Using `Motion::HTTP` is quick and easy. You can use the simple approach for making one-off requests, or the advanced approach of creating a reusable API client for further customization.
+Using `motion-http` is quick and easy. You can use the simple approach for making one-off requests, or the advanced approach of creating a reusable API client for further customization.
 
 ### Simple Usage
 
-The basic syntax for a simple request looks like this:
+The basic syntax for a request looks like this:
 ```ruby
-Motion::HTTP.method(url, params) do |response|
+HTTP.method(url, params, options) do |response|
   # this block will be called asynchronously
 end
 ```
+Where `method` can be `get`, `post`, `put`, `patch`, or `delete`.
 
-To make a simple `GET` request:
+For example, to make a simple `GET` request:
 ```ruby
-Motion::HTTP.get("http://www.example.com") do |response|
-  puts "status code: #{response.status_code}"
-  puts "response body: #{response.body}"
+HTTP.get("http://www.example.com") do |response|
   if response.success?
     puts "Success!"
   else
@@ -58,14 +54,23 @@ end
 
 You can specify query params as the second argument:
 ```ruby
-Motion::HTTP.get("http://www.example.com/search", term: "my search term") do |response|
+HTTP.get("http://www.example.com/search", term: "my search term") do |response|
   # ...
 end
 ```
 
-`Motion::HTTP` will automatically parse JSON responses:
+The response object contains the status code, headers, and body from the response as well:
 ```ruby
-Motion::HTTP.get("http://api.example.com/people.json") do |response|
+HTTP.get("http://example.com") do |response|
+  puts response.status_code
+  puts response.headers.inspect
+  puts response.body
+end
+```
+
+JSON responses will automatically be parsed when requesting the `response.object`:
+```ruby
+HTTP.get("http://api.example.com/people.json") do |response|
   if response.success?
     response.object["people"].each do |person|
       puts "name: #{person["name"]}"
@@ -76,25 +81,32 @@ Motion::HTTP.get("http://api.example.com/people.json") do |response|
 end
 ```
 
+The third argument is a hash of options. Currently the only option supported at this time is `follow_redirects` which defaults to true:
+```ruby
+HTTP.get("http://example.com/redirect", nil, follow_redirects: false) do |response|
+  # ...
+end
+```
+
 To make a simple `POST` request, the value passed as the second argument will be encoded as the request body:
 ```ruby
 json = { widget: { name: "Foobar" } }
-Motion::HTTP.post("http://www.example.com/widgets", json) do |response|
+HTTP.post("http://www.example.com/widgets", json) do |response|
   if response.success?
     puts "Widget created!"
-  elsif response.client_error?
+  elsif response.status_code == 422
     puts "Oops, you did something wrong: #{response.object["error_message"]}"
   else
-    puts "Oops! Something else went wrong."
+    puts "Oops! Something went wrong."
   end
 end
 ```
 
 `PUT`, `PATCH`, and `DELETE` requests work the same way:
 ```ruby
-Motion::HTTP.put(url, params) { ... }
-Motion::HTTP.patch(url, params) { ... }
-Motion::HTTP.delete(url, params) { ... }
+HTTP.put(url, params) { ... }
+HTTP.patch(url, params) { ... }
+HTTP.delete(url, params) { ... }
 ```
 
 ### Advanced Usage
@@ -102,7 +114,7 @@ Motion::HTTP.delete(url, params) { ... }
 A common use case is to create a reusable HTTP client that uses a common base URL or request headers.
 
 ```ruby
-client = Motion::HTTP::Client.new("http://www.example.com")
+client = HTTP::Client.new("http://api.example.com")
 # Set or replace a single header:
 client.header "X-API-TOKEN", "abc123xyz"
 
@@ -110,13 +122,13 @@ client.header "X-API-TOKEN", "abc123xyz"
 client.headers "X-API-TOKEN" => "abc123xyz",
                "Accept" => "application/json"
 
-# It is valid for some headers to appear multiple times (Accept, Vary, etc).
+# Note that it is valid for some headers to appear multiple times (Accept, Vary, etc).
 # To append multiple headers of the same key:
 client.add_header "Accept", "application/json"
 client.add_header "Accept", "application/vnd.api+json"
 ```
 
-Then make your requests relative to the base URL that you specified when creating your client.
+Then you can make your requests relative to the base URL that you specified when creating your client.
 ```ruby
 client.get("/people") do |response|
   # ...
