@@ -48,23 +48,12 @@ namespace 'ios' do
 end
 
 desc 'Build the project, then run the emulator'
-task 'android' do
-  invoke_rake 'android', 'default'
-end
+task('android') { invoke_rake 'android', 'default' }
+
 namespace 'android' do
-  task "clean" do
-    invoke_rake 'android', 'clean'
-  end
-  desc "Same as 'spec:emulator'"
-  task "spec" do
-    invoke_rake 'android', 'spec'
-  end
-  desc "Run the test/spec suite on the device"
-  task "spec:device" do
-    invoke_rake 'android', 'spec:device'
-  end
-  desc "Run the test/spec suite on the emulator"
-  task "spec:emulator" do
-    invoke_rake 'android', 'spec:emulator'
-  end
+  task('device') { invoke_rake 'android', 'device' }
+  task('clean')  { invoke_rake 'android', 'clean' }
+  task('spec')   { invoke_rake 'android', 'spec' }
+  task('spec:emulator') { invoke_rake 'android', 'spec:emulator' }
+  task('spec:device')   { invoke_rake 'android', 'spec:device' }
 end
