@@ -1,5 +1,6 @@
 class AppDelegate
   def application(application, didFinishLaunchingWithOptions:launchOptions)
+    return true if RUBYMOTION_ENV == "test"
     # rootViewController = UIViewController.alloc.init
     # rootViewController.title = 'AFNetworking101'
     # rootViewController.view.backgroundColor = UIColor.whiteColor
