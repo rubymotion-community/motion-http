@@ -1,8 +1,22 @@
 class Motion
   class HTTP
     class Logger
+      attr_reader :enabled
+
+      def initialize(enabled = true)
+        @enabled = enabled
+      end
+
+      def enable!
+        @enabled = true
+      end
+
+      def disable!
+        @enabled = false
+      end
+
       def log(message)
-        puts message # TODO: add option to enable/disable logging
+        puts message if enabled
       end
 
       def log_request(request)
