@@ -3,9 +3,10 @@ class Motion
     class Client
       attr_reader :base_url
 
-      def initialize(base_url = nil)
+      def initialize(base_url = nil, options = nil)
         @base_url = base_url || ''
-        @headers = Headers.new
+        options ||= {}
+        @headers = Headers.new(options.delete(:headers))
       end
 
       def header(key, value)
@@ -25,31 +26,34 @@ class Motion
         @headers
       end
 
-      # FIXME: doesn't work on Android for some reason
-      # [:get, :post, :put, :patch, :delete].each do |method|
-      #   define_method "#{method}", do |path, params = nil, options = nil, &callback|
-      #     Request.new(method, base_url + path, headers, params, options).perform(&callback)
-      #   end
-      # end
-
-      def get(path, params = nil, options = nil, &callback)
-        Request.new(:get, base_url + path, headers, params, options).perform(&callback)
+      def get(path, options = nil, &callback)
+        request(:get, path, options, &callback)
       end
 
-      def post(path, params = nil, options = nil, &callback)
-        Request.new(:post, base_url + path, headers, params, options).perform(&callback)
+      def post(path, options = nil, &callback)
+        request(:post, path, options, &callback)
       end
 
-      def put(path, params = nil, options = nil, &callback)
-        Request.new(:put, base_url + path, headers, params, options).perform(&callback)
+      def put(path, options = nil, &callback)
+        request(:put, path, options, &callback)
       end
 
-      def patch(path, params = nil, options = nil, &callback)
-        Request.new(:patch, base_url + path, headers, params, options).perform(&callback)
+      def patch(path, options = nil, &callback)
+        request(:patch, path, options, &callback)
       end
 
-      def delete(path, params = nil, options = nil, &callback)
-        Request.new(:delete, base_url + path, headers, params, options).perform(&callback)
+      def delete(path, options = nil, &callback)
+        request(:delete, path, options, &callback)
+      end
+
+      def request(http_method, path, options = nil, &callback)
+        options ||= {}
+        headers_dup = headers.dup
+        if options[:headers]
+          options.delete(:headers).each {|key, value| headers_dup.set(key, value) }
+        end
+        options[:headers] = headers_dup
+        Request.new(http_method, base_url + path, options).perform(&callback)
       end
     end
   end

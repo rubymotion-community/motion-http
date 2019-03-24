@@ -2,12 +2,21 @@ class Motion
   class HTTP
     class Headers
       def initialize(headers = {})
-        @headers = headers
+        @headers = {}
+        if headers.is_a? Hash
+          headers.each {|key, value| set(key, value) }
+        end
       end
+
+      def get(key)
+        @headers[key.downcase]
+      end
+      alias :[] :get
 
       def set(key, value)
         @headers[key.downcase] = value
       end
+      alias :[]= :set
 
       def add(key, value)
         key = key.downcase
@@ -17,13 +26,10 @@ class Motion
         end
         @headers[key] << value
       end
+      alias :<< :add
 
       def each(&block)
         @headers.each(&block)
-      end
-
-      def [](key)
-        @headers[key.downcase]
       end
     end
   end

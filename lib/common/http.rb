@@ -5,35 +5,28 @@ class Motion
         @logger ||= Logger.new
       end
 
-      def client
-        @client ||= Client.new
+      def client(*args)
+        Client.new(*args)
       end
 
-      # FIXME: doesn't work on Android
-      # [:get, :post, :put, :patch, :delete].each do |method|
-      #   define_method "#{method}", do |url, params = nil, options = nil, &callback|
-      #     client.send(method, url, params, options, &callback)
-      #   end
-      # end
-
-      def get(url, params = nil, options = nil, &callback)
-        client.get(url, params, options, &callback)
+      def get(url, options = nil, &callback)
+        client.get(url, options, &callback)
       end
 
-      def post(url, params = nil, options = nil, &callback)
-        client.post(url, params, options, &callback)
+      def post(url, options = nil, &callback)
+        client.post(url, options, &callback)
       end
 
-      def put(url, params = nil, options = nil, &callback)
-        client.put(url, params, options, &callback)
+      def put(url, options = nil, &callback)
+        client.put(url, options, &callback)
       end
 
-      def patch(url, params = nil, options = nil, &callback)
-        client.patch(url, params, options, &callback)
+      def patch(url, options = nil, &callback)
+        client.patch(url, options, &callback)
       end
 
-      def delete(url, params = nil, options = nil, &callback)
-        client.delete(url, params, options, &callback)
+      def delete(url, options = nil, &callback)
+        client.delete(url, options, &callback)
       end
     end
   end

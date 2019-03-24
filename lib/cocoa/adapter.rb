@@ -16,15 +16,14 @@ class Motion
           ns_url_request = build_ns_url_request
           task = @session.dataTaskWithRequest(ns_url_request, completionHandler: -> (data, response, error) {
             if error
-              NSLog("Error: %@", error) # TODO: use configurable logging
-              error_message = error.localizedDescription
-              error_message += error.userInfo[NSLocalizedDescriptionKey] if error.userInfo[NSLocalizedDescriptionKey]
-              response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), error_message)
+              error_message = "#{error.localizedDescription} #{error.userInfo['NSLocalizedDescriptionKey']}"
+              Motion::HTTP.logger.error("Error while requesting #{@request.url}: #{error_message}")
+              response = Response.new(@request, response&.statusCode, Headers.new(response&.allHeaderFields), error_message)
             else
               response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), data.to_s)
+              Motion::HTTP.logger.log_response(response)
             end
-            Motion::HTTP.logger.log_response(response)
-            callback.call(response)
+            callback.call(response) if callback
           })
           task.resume
         end
@@ -32,11 +31,18 @@ class Motion
         def build_ns_url_request
           ns_url_request = NSMutableURLRequest.alloc.initWithURL(NSURL.URLWithString(@request.url))
           ns_url_request.HTTPMethod = @request.http_method.to_s.upcase
-          if @request.params
-            # TODO: json serialization
-            ns_url_request.setValue('application/x-www-form-urlencoded', forHTTPHeaderField: 'Content-Type')
-            ns_url_request.HTTPBody = FormDataSerializer.serialize(@request.params).dataUsingEncoding(NSUTF8StringEncoding)
+          @request.headers.each do |key, value|
+            if value.is_a? Array
+              value.each {|v2| ns_url_request.addValue(v2, forHTTPHeaderField: key) }
+            else
+              ns_url_request.setValue(value, forHTTPHeaderField: key)
+            end
           end
+
+          if @request.body
+            ns_url_request.HTTPBody = NSString.alloc.initWithString(@request.body).dataUsingEncoding(NSUTF8StringEncoding)
+          end
+
           # TODO: add other headers
           ns_url_request
         end
