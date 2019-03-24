@@ -10,7 +10,7 @@ require './lib/motion-http'
 begin
   require 'bundler'
   require 'motion/project/template/gem/gem_tasks'
-  Bundler.require
+  Bundler.require(:default, template.to_sym)
 rescue LoadError
 end
 
@@ -32,7 +32,7 @@ end
 def invoke_rake(platform, task)
   trace = Rake.application.options.trace == true
 
-  template = platform.to_s == 'android' ? 'android' : 'cocoa'
+  template = platform.to_s == 'android' ? 'android' : 'ios'
   system "template=#{platform} rake \"#{task}\" #{trace ? '--trace' : ''}" or exit 1
 end
 

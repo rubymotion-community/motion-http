@@ -4,6 +4,14 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'motion-gradle', require: false
-gem 'webstub', require: false
-gem 'redpotion', require: false # for dummy app
+gem 'motion-spec'
+
+group :ios do
+  gem 'webstub'
+  gem 'redpotion' # for dummy app
+end
+
+# Android Only
+group :android do
+  gem 'motion-gradle'
+end
