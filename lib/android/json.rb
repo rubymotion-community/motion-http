@@ -1,6 +1,6 @@
 # NOTE: Copied from https://github.com/HipByte/Flow/blob/master/flow/json/android/json.rb
 class JSON
-  def self.load(str)
+  def self.parse(str)
     tok = Org::JSON::JSONTokener.new(str)
     obj = tok.nextValue
     if obj == nil

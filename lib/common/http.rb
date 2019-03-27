@@ -1,6 +1,8 @@
 class Motion
   class HTTP
     class << self
+      attr_accessor :application_context # Android
+
       def logger
         @logger ||= Logger.new
       end

@@ -12,9 +12,8 @@ Motion::Project::App.setup do |app|
   when :android
     require "motion-gradle"
     app.files.unshift(*Dir.glob(File.join(lib_dir_path, "android/**/*.rb")))
-    app.gradle do
-      dependency "com.squareup.okhttp3:okhttp:3.9.0"
-    end
+    app.permissions << :internet
+    app.gradle { dependency 'com.android.volley:volley:1.1.1' }
   when :ios, :tvos, :osx, :watchos, :'ios-extension'
     app.files.unshift(*Dir.glob(File.join(lib_dir_path, "cocoa/**/*.rb")))
   else

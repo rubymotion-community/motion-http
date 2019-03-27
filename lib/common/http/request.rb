@@ -24,7 +24,7 @@ class Motion
           @body = @params.map{|k,v|"#{k}=#{v}"}.join('&')
 
         elsif @options[:json]
-          @headers['Content-Type'] ||= 'application/json'
+          @headers['Content-Type'] ||= 'application/json; charset=utf-8'
           @body = @options.delete(:json).to_json
         end
       end
@@ -47,15 +47,9 @@ class Motion
       def encode_params!
         new_params = {}
         @params.each do |k,v|
-          new_params[encode_string(k)] = encode_string(v)
+          new_params[ParamsEncoder.encode(k)] = ParamsEncoder.encode(v)
         end
         @params = new_params
-      end
-
-      def encode_string(arg)
-        arg.to_s.gsub(/([^ a-zA-Z0-9_.-]+)/) do |m|
-          '%' + m.unpack('H2' * m.bytesize).join('%').upcase
-        end.tr(' ', '+')
       end
 
       def perform(&callback)

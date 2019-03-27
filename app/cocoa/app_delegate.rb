@@ -15,7 +15,7 @@ class MainScreen < PM::TableScreen
         {
           title: 'GET /posts',
           action: -> {
-            Motion::HTTP.get("#{TEST_HOST}/posts") do |response|
+            HTTP.get("#{TEST_HOST}/posts") do |response|
               if response.success?
                 puts "first post: #{response.object.first.inspect}"
               else
@@ -26,7 +26,7 @@ class MainScreen < PM::TableScreen
         }, {
           title: 'GET /comments?postId=1',
           action: -> {
-            Motion::HTTP.get("#{TEST_HOST}/comments", params: { postId: 1 }) do |response|
+            HTTP.get("#{TEST_HOST}/comments", params: { postId: 1 }) do |response|
               if response.success?
                 puts "first comment: #{response.object.first.inspect}"
               else
@@ -37,7 +37,7 @@ class MainScreen < PM::TableScreen
         }, {
           title: 'POST /posts (JSON post body)',
           action: -> {
-            Motion::HTTP.post("#{TEST_HOST}/posts", json: { title: "My new post", body: "Such a great blog post!" }) do |response|
+            HTTP.post("#{TEST_HOST}/posts", json: { title: "My new post", body: "Such a great blog post!" }) do |response|
               if response.success?
                 puts "new post response object: #{response.object.inspect}"
               else
@@ -48,7 +48,7 @@ class MainScreen < PM::TableScreen
         }, {
           title: 'POST /posts (form data)',
           action: -> {
-            Motion::HTTP.post("#{TEST_HOST}/posts", form: { title: "My new post", body: "Such a great blog post!" }) do |response|
+            HTTP.post("#{TEST_HOST}/posts", form: { title: "My new post", body: "Such a great blog post!" }) do |response|
               if response.success?
                 puts "new post response object: #{response.object.inspect}"
               else

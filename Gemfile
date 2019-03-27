@@ -4,9 +4,9 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake'
-gem 'motion-spec'
 
 group :ios do
+  gem 'motion-spec'
   gem 'webstub'
   gem 'redpotion' # for dummy app
 end
