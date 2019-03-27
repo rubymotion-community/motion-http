@@ -26,6 +26,17 @@ class Motion
         @headers
       end
 
+      def basic_auth(username, password)
+        header_value = 'Basic ' + Base64.encode("#{username}:#{password}")
+        auth(header_value)
+        self
+      end
+
+      def auth(header_value)
+        @headers.set 'Authorization', header_value
+        self
+      end
+
       def get(path, options = nil, &callback)
         request(:get, path, options, &callback)
       end

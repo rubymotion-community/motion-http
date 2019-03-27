@@ -56,6 +56,19 @@ class MainScreen < PM::TableScreen
               end
             end
           }
+        }, {
+          title: 'GET /basic_auth',
+          action: -> {
+            # HTTP.basic_auth('admin', 'letmein')
+            HTTP.basic_auth('admin', 'badpass')
+                .get("#{TEST_HOST}/basic_auth") do |response|
+              if response.success?
+                puts "successfully authenticated!"
+              else
+                puts response.body
+              end
+            end
+          }
         }
       ]
     }]

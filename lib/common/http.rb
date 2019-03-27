@@ -11,6 +11,14 @@ class Motion
         Client.new(*args)
       end
 
+      def basic_auth(username, password)
+        client.basic_auth(username, password)
+      end
+
+      def auth(header_value)
+        client.auth(header_value)
+      end
+
       def get(url, options = nil, &callback)
         client.get(url, options, &callback)
       end

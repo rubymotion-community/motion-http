@@ -1,7 +1,7 @@
 class MainActivity < Android::App::Activity
-  TEST_HOST = 'https://jsonplaceholder.typicode.com'
+  # TEST_HOST = 'https://jsonplaceholder.typicode.com'
   # TEST_HOST = 'http://localhost:4567'
-  # TEST_HOST = 'http://192.168.0.5:4567'
+  TEST_HOST = 'http://192.168.0.5:4567'
 
   def onCreate(savedInstanceState)
     super
@@ -38,8 +38,9 @@ class MainActivity < Android::App::Activity
     #     puts response.body
     #   end
     # end
+    HTTP.basic_auth('admin', 'letmein').get("#{TEST_HOST}/basic_auth") do |response|
       if response.success?
-        puts "new post response object: #{response.object.inspect}"
+        puts "successfully authenticated!"
       else
         puts response.body
       end
