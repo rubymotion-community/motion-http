@@ -65,12 +65,10 @@ class Motion
       # Copied from https://github.com/rubymotion/BubbleWrap/blob/8eaf99a0966f2b375e774f5940279a704c10ad29/motion/core/ios/device.rb#L46
       def simulator?
         @simulator_state ||= begin
-          if !defined?(NSObject) # android
-            false
-          elsif ios_version.to_i >= 9
+          if defined?(NSObject) # iOS
             !NSBundle.mainBundle.bundlePath.start_with?('/var/')
-          else
-            !(UIDevice.currentDevice.model =~ /simulator/i).nil?
+          else # android
+            false
           end
         end
       end
