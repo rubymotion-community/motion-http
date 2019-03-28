@@ -35,11 +35,11 @@ Using `motion-http` is quick and easy. You can use the simple approach for makin
 
 The basic syntax for a request looks like this:
 ```ruby
-HTTP.method(url, params, options) do |response|
-  # this block will be called asynchronously
+HTTP.method(url, options) do |response|
+  # this will be called asynchronously
 end
 ```
-Where `method` can be `get`, `post`, `put`, `patch`, or `delete`.
+Where `method` can be either `get`, `post`, `put`, `patch`, `delete`, `head`, `options`, or `trace`.
 
 For example, to make a simple `GET` request:
 ```ruby
@@ -52,23 +52,27 @@ HTTP.get("http://www.example.com") do |response|
 end
 ```
 
-You can specify query params as the second argument:
+If you need to specify query params:
 ```ruby
-HTTP.get("http://www.example.com/search", term: "my search term") do |response|
+HTTP.get("http://www.example.com/search", params: { term: "my search term" }) do |response|
   # ...
 end
 ```
 
-The response object contains the status code, headers, and body from the response as well:
+The response object contains the status code, headers, body, and shortcut methods for checking the response status:
 ```ruby
 HTTP.get("http://example.com") do |response|
-  puts response.status_code
+  puts response.status_code.to_s
   puts response.headers.inspect
   puts response.body
+  response.success?      # 2xx status
+  response.redirect?     # 3xx status
+  response.client_error? # 4xx status
+  response.server_error? # 5xx status
 end
 ```
 
-JSON responses will automatically be parsed when requesting the `response.object`:
+If the response body has a JSON content type it will automatically be parsed when requesting the `response.object`:
 ```ruby
 HTTP.get("http://api.example.com/people.json") do |response|
   if response.success?
@@ -81,17 +85,29 @@ HTTP.get("http://api.example.com/people.json") do |response|
 end
 ```
 
-The third argument is a hash of options. Currently the only option supported at this time is `follow_redirects` which defaults to true:
+Use the `follow_redirects` option to specify whether or not to follow redirects. It defaults to true:
 ```ruby
-HTTP.get("http://example.com/redirect", nil, follow_redirects: false) do |response|
+HTTP.get("http://example.com/redirect", follow_redirects: false) do |response|
   # ...
 end
 ```
 
-To make a simple `POST` request, the value passed as the second argument will be encoded as the request body:
+When making a `POST` request, specify the `:form` option and it will automatically be encoded as `application/x-www-form-urlencoded` request body:
 ```ruby
-json = { widget: { name: "Foobar" } }
-HTTP.post("http://www.example.com/widgets", json) do |response|
+HTTP.post("http://www.example.com/login", form: { user: 'andrew', pass: 'secret'}) do |response|
+  if response.success?
+    puts "Authenticated!"
+  elsif response.client_error?
+    puts "Bad username or password"
+  else
+    puts "Oops! Something went wrong."
+  end
+end
+```
+
+Likewise, to send a JSON encoded request body, use the `:json` option:
+```ruby
+HTTP.post("http://www.example.com/widgets", json: { widget: { name: "Foobar" } }) do |response|
   if response.success?
     puts "Widget created!"
   elsif response.status_code == 422
@@ -102,11 +118,24 @@ HTTP.post("http://www.example.com/widgets", json) do |response|
 end
 ```
 
-`PUT`, `PATCH`, and `DELETE` requests work the same way:
+Request specific headers can also be specified with the `:headers` option (overriding any previously set headers):
+```ruby
+HTTP.post("http://www.example.com/widgets",
+    headers: { 'Content-Type' => 'application/vnd.api+json' },
+    json: { widget: { name: "Foobar" } }
+  ) do |response|
+  # ...
+end
+```
+
+All other HTTP method requests work the same way:
 ```ruby
 HTTP.put(url, params) { ... }
 HTTP.patch(url, params) { ... }
 HTTP.delete(url, params) { ... }
+HTTP.head(url, params) { ... }
+HTTP.options(url, params) { ... }
+HTTP.trace(url, params) { ... }
 ```
 
 ### Advanced Usage
@@ -117,6 +146,7 @@ A common use case is to create a reusable HTTP client that uses a common base UR
 client = HTTP::Client.new("http://api.example.com")
 # Set or replace a single header:
 client.header "X-API-TOKEN", "abc123xyz"
+client.header["X-API-TOKEN"] = "abc123xyz"
 
 # To set or replace multiple headers:
 client.headers "X-API-TOKEN" => "abc123xyz",
@@ -125,7 +155,7 @@ client.headers "X-API-TOKEN" => "abc123xyz",
 # Note that it is valid for some headers to appear multiple times (Accept, Vary, etc).
 # To append multiple headers of the same key:
 client.add_header "Accept", "application/json"
-client.add_header "Accept", "application/vnd.api+json"
+client.headers.add "Accept", "application/json"
 ```
 
 Then you can make your requests relative to the base URL that you specified when creating your client.
@@ -133,6 +163,35 @@ Then you can make your requests relative to the base URL that you specified when
 client.get("/people") do |response|
   # ...
 end
+```
+
+### Basic Auth / Token Auth
+
+To make Basic Auth requests, either set the credentials before the request, or set it on your client:
+
+```ruby
+HTTP.basic_auth('username', 'password').get('https://example.com/protected')
+# or
+client.basic_auth('username', 'password')
+client.get('/protected')
+```
+
+The `auth` method is another shortcut for setting any value of the Authorization header:
+
+```ruby
+HTTP.auth("Token token=#{my_token}")
+# or
+client.auth("Token token=#{my_token}")
+# same as
+client.headers['Authorization'] = "Token token=#{my_token}"
+```
+
+### Logging
+
+By default, requests and responses will be logged. If you would like to disable this:
+
+```
+HTTP.logger.disable!
 ```
 
 ## Contributing

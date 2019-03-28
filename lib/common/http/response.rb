@@ -11,8 +11,19 @@ class Motion
       end
 
       def success?
-        return false unless status_code
-        status_code >= 200 && status_code < 300
+        status_code && (200..299) === status_code
+      end
+
+      def redirect?
+        status_code && (300..399) === status_code
+      end
+
+      def client_error?
+        status_code && (400..499) === status_code
+      end
+
+      def server_error?
+        status_code && (500..599) === status_code
       end
 
       def object

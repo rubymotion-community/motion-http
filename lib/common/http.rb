@@ -38,6 +38,18 @@ class Motion
       def delete(url, options = nil, &callback)
         client.delete(url, options, &callback)
       end
+
+      def head(url, options = nil, &callback)
+        client.head(url, options, &callback)
+      end
+
+      def options(url, options = nil, &callback)
+        client.options(url, options, &callback)
+      end
+
+      def trace(url, options = nil, &callback)
+        client.trace(url, options, &callback)
+      end
     end
   end
 end

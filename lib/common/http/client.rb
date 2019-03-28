@@ -57,6 +57,18 @@ class Motion
         request(:delete, path, options, &callback)
       end
 
+      def head(path, options = nil, &callback)
+        request(:head, path, options, &callback)
+      end
+
+      def options(path, options = nil, &callback)
+        request(:options, path, options, &callback)
+      end
+
+      def trace(path, options = nil, &callback)
+        request(:trace, path, options, &callback)
+      end
+
       def request(http_method, path, options = nil, &callback)
         options ||= {}
         headers_dup = headers.dup
