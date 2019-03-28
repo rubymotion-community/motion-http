@@ -6,9 +6,9 @@ Supported platforms:
 - iOS, macOS, tvOS, watchOS
 - Android
 
-On Android, this gem depends on the super popular [OkHttp](http://square.github.io/okhttp/) networking library.
+It makes use of the officially supported networking libraries provided by Apple and Google. The goal of this gem is to provide you with a stable alternative to using these libraries directly, using a syntax that is much easier to use.
 
-Please note that this library is still a work in progress. Please report bugs and suggestions for improvement!
+Please report any bugs and suggestions for improvement!
 
 ## Installation
 
@@ -19,13 +19,17 @@ Add this line to your application's Gemfile:
 And then execute:
 
     $ bundle
-    $ rake gradle:install # for Android apps
+    $ rake gradle:install # Android only
 
 ### iOS Specific Configuration
 
-If you will be making insecure HTTP requests (not HTTPS), you will need to explicitly allow insecure HTTP requests by adding this line to your app's configuration in your Rakefile:
+If you will be making insecure requests (not using HTTPS), you will need to explicitly allow insecure HTTP requests by adding this line to your app's configuration (in your `Rakefile`). You might want to do this if you are trying to access localhost in development.
 
-    app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
+```ruby
+app.development do
+  app.info_plist['NSAppTransportSecurity'] = { 'NSAllowsArbitraryLoads' => true }
+end
+```
 
 ## Usage
 
