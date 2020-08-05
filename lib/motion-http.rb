@@ -4,6 +4,8 @@ unless defined?(Motion::Project::Config)
   raise "This gem is only intended to be used in a RubyMotion project."
 end
 
+require 'motion-lager'
+
 lib_dir_path = File.dirname(File.expand_path(__FILE__))
 Motion::Project::App.setup do |app|
   app.files.unshift(*Dir.glob(File.join(lib_dir_path, "common/**/*.rb")))

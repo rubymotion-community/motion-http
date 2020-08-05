@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["email@andrewhavens.com"]
   spec.description   = %q{A cross-platform HTTP client for RubyMotion that's quick and easy to use.}
   spec.summary       = %q{A cross-platform HTTP client for RubyMotion that's quick and easy to use.}
-  spec.homepage      = "https://github.com/andrewhavens/motion-http"
+  spec.homepage      = "https://github.com/rubymotion-community/motion-http"
   spec.license       = "MIT"
 
   files = []
@@ -18,4 +18,6 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
+
+  spec.add_dependency 'motion-lager'
 end

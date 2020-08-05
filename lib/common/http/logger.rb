@@ -4,6 +4,7 @@ class Motion
       attr_reader :enabled
 
       def initialize(enabled = true)
+        # TODO: add ability to configure amount of logging (i.e. request URL only, no body, etc)
         @enabled = enabled
       end
 
@@ -15,63 +16,42 @@ class Motion
         @enabled = false
       end
 
-      def log(message, color = :white)
-        puts colorize(color, message) if enabled
+      def _logger
+        @_logger ||= Motion::Lager.new
       end
 
-      def error(message)
-        puts colorize(:red, message)
+      def debug(message, color = :gray)
+        _logger.debug(message, color) if enabled
+      end
+
+      def log(message, color = :white)
+        _logger.log(message, color) if enabled
+      end
+
+      def error(message, color = :red)
+        _logger.error(message, color) # always log even if logging is disabled
       end
 
       def log_request(request)
-        log "\nRequest:\n#{request.http_method.to_s.upcase} #{request.url}", :dark_gray
-
-        if request.headers
-          request.headers.each do |k,v|
-            log "#{k}: #{v}", :dark_gray
-          end
+        debug "\nRequest:\n#{request.http_method.to_s.upcase} #{request.url}"
+        request.headers.each do |k,v|
+          debug "#{k}: #{v}"
         end
-
-        log(request.body, :dark_gray) if request.body
+        debug(request.body) if request.body
       end
 
       def log_response(response)
-        log "\nResponse:", :dark_gray
+        debug "\nResponse:"
         if response.original_request
-          log "URL: #{response.original_request.url}", :dark_gray
+          debug "URL: #{response.original_request.url}"
         end
-        log "Status: #{response.status_code}", :dark_gray
+        debug "Status: #{response.status_code}"
         response.headers.each do |k,v|
-          log "#{k}: #{v}", :dark_gray
+          debug "#{k}: #{v}"
         end
-        log "\n#{response.body}", :dark_gray
+        debug("\n#{response.body}")
       end
 
-      def colorize(color, string)
-        return string unless simulator? # Only colorize in the simulator
-
-        code = {
-          red: 31,
-          dark_gray: 90,
-        }[color]
-
-        if code
-          "\e[#{code}m#{string}\e[0m"
-        else
-          string
-        end
-      end
-
-      # Copied from https://github.com/rubymotion/BubbleWrap/blob/8eaf99a0966f2b375e774f5940279a704c10ad29/motion/core/ios/device.rb#L46
-      def simulator?
-        @simulator_state ||= begin
-          if defined?(NSObject) # iOS
-            !NSBundle.mainBundle.bundlePath.start_with?('/var/')
-          else # android
-            false
-          end
-        end
-      end
     end
   end
 end
