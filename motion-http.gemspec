@@ -1,9 +1,8 @@
 # -*- encoding: utf-8 -*-
-VERSION = "1.0.0"
 
 Gem::Specification.new do |spec|
   spec.name          = "motion-http"
-  spec.version       = VERSION
+  spec.version       = "1.0.1"
   spec.authors       = ["Andrew Havens"]
   spec.email         = ["email@andrewhavens.com"]
   spec.description   = %q{A cross-platform HTTP client for RubyMotion that's quick and easy to use.}
