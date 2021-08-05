@@ -8,7 +8,7 @@ Supported platforms:
 
 It makes use of the officially supported networking libraries provided by Apple and Google. The goal of this gem is to provide you with a stable alternative to using these libraries directly, using a syntax that is much easier to use.
 
-Please report any bugs and suggestions for improvement!
+Please report any bugs or suggestions for improvement!
 
 ## Installation
 
@@ -33,9 +33,9 @@ end
 
 ## Usage
 
-Using `motion-http` is quick and easy. You can use the simple approach for making one-off requests, or the advanced approach of creating a reusable API client for further customization.
+Using `motion-http` is quick and easy. You can either make one-off requests or create a reusable API client for further customization.
 
-### Simple Usage
+### Basic Usage
 
 The basic syntax for a request looks like this:
 ```ruby
@@ -96,9 +96,18 @@ HTTP.get("http://example.com/redirect", follow_redirects: false) do |response|
 end
 ```
 
-When making a `POST` request, specify the `:form` option and it will automatically be encoded as `application/x-www-form-urlencoded` request body:
+#### POST Requests
+
+When making a `POST` request, specifying the request body is easy:
 ```ruby
-HTTP.post("http://www.example.com/login", form: { user: 'andrew', pass: 'secret'}) do |response|
+HTTP.post("http://www.example.com/endpoint", body: raw_request_body) do |response|
+  # ...
+end
+```
+
+Specify the `:form` option and it will automatically be encoded as `application/x-www-form-urlencoded` request body:
+```ruby
+HTTP.post("http://www.example.com/login", form: { user: 'andrew', password: 'secret'}) do |response|
   if response.success?
     puts "Authenticated!"
   elsif response.client_error?
@@ -122,7 +131,7 @@ HTTP.post("http://www.example.com/widgets", json: { widget: { name: "Foobar" } }
 end
 ```
 
-Request specific headers can also be specified with the `:headers` option (overriding any previously set headers):
+To specify request specific headers, use the `:headers` option. This overrides any previously set headers. In this example, we override the default JSON content type:
 ```ruby
 HTTP.post("http://www.example.com/widgets",
     headers: { 'Content-Type' => 'application/vnd.api+json' },
@@ -222,13 +231,13 @@ Copyright (c) 2015-2016, HipByte (info@hipbyte.com) and contributors.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: 
+modification, are permitted provided that the following conditions are met:
 
 1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
+   list of conditions and the following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice,
    this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution. 
+   and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
