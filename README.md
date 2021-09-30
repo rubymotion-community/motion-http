@@ -89,7 +89,7 @@ HTTP.get("http://api.example.com/people.json") do |response|
 end
 ```
 
-Use the `follow_redirects` option to specify whether or not to follow redirects. It defaults to true:
+Use the `follow_redirects` option to specify whether or not to follow redirects. The default is `true`:
 ```ruby
 HTTP.get("http://example.com/redirect", follow_redirects: false) do |response|
   # ...
@@ -143,12 +143,12 @@ end
 
 All other HTTP method requests work the same way:
 ```ruby
-HTTP.put(url, params) { ... }
-HTTP.patch(url, params) { ... }
-HTTP.delete(url, params) { ... }
-HTTP.head(url, params) { ... }
-HTTP.options(url, params) { ... }
-HTTP.trace(url, params) { ... }
+HTTP.put(url, options) { ... }
+HTTP.patch(url, options) { ... }
+HTTP.delete(url, options) { ... }
+HTTP.head(url, options) { ... }
+HTTP.options(url, options) { ... }
+HTTP.trace(url, options) { ... }
 ```
 
 ### Advanced Usage
