@@ -201,7 +201,13 @@ client.headers['Authorization'] = "Token token=#{my_token}"
 
 ### Logging
 
-By default, requests and responses will be logged. If you would like to disable this:
+Logging is disabled by default. To enable logging:
+
+```
+HTTP.logger.enable!
+```
+
+To disable it again:
 
 ```
 HTTP.logger.disable!
