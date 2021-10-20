@@ -3,9 +3,8 @@ class Motion
     class Logger
       attr_reader :enabled
 
-      def initialize(enabled = true)
-        # TODO: add ability to configure amount of logging (i.e. request URL only, no body, etc)
-        @enabled = enabled
+      def initialize
+        @enabled = false # logging is disabled by default
       end
 
       def enable!
