@@ -40,7 +40,12 @@ class Motion
           end
 
           if @request.body
-            ns_url_request.HTTPBody = NSString.alloc.initWithString(@request.body).dataUsingEncoding(NSUTF8StringEncoding)
+            if @request.body.is_a?(NSData)
+              body_data = @request.body
+            else
+              body_data = NSString.alloc.initWithString(@request.body).dataUsingEncoding(NSUTF8StringEncoding)
+            end
+            ns_url_request.HTTPBody = body_data
           end
 
           # TODO: add other headers
