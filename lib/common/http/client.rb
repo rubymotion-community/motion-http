@@ -69,6 +69,13 @@ class Motion
         request(:trace, path, options, &callback)
       end
 
+      def download(remote_path, options = nil, &callback)
+        options ||= {}
+        http_method = options[:method] || :get
+        options[:download] = true
+        request(http_method, remote_path, options, &callback)
+      end
+
       def request(http_method, path, options = nil, &callback)
         options ||= {}
         headers_dup = headers.dup
