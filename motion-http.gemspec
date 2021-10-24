@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "motion-http"
-  spec.version       = "1.0.3"
+  spec.version       = "1.1.0"
   spec.authors       = ["Andrew Havens"]
   spec.email         = ["email@andrewhavens.com"]
   spec.description   = %q{A cross-platform HTTP client for RubyMotion that's quick and easy to use.}
