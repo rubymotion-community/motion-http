@@ -14,11 +14,48 @@ class Motion
         def perform(&callback)
           # TODO: dataTask is good for general HTTP requests but not for file downloads
           ns_url_request = build_ns_url_request
+          if @request.options[:download]
+            perform_download_request(ns_url_request, &callback)
+          else
+            perform_normal_http_request(ns_url_request, &callback)
+          end
+        end
+
+        def perform_download_request(ns_url_request, &callback)
+          # TODO: need to set up delegate methods when using a background session
+          # @background_session = NSURLSession.sessionWithConfiguration(NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("motion-http"))
+          # task = @background_session.downloadTaskWithRequest(ns_url_request, completionHandler: -> (location, response, error) {
+          task = @session.downloadTaskWithRequest(ns_url_request, completionHandler: -> (location, response, error) {
+            if error
+              log_error "Error while requesting #{@request.url}: #{error_description(error)}"
+              response = Response.new(@request, response&.statusCode, Headers.new(response&.allHeaderFields), error_description(error))
+            else
+              if @request.options[:to]
+                error_ptr = Pointer.new(:object)
+                file_data = NSFileManager.defaultManager.contentsAtPath(location)
+                file_data.writeToFile(@request.options[:to], options: NSDataWritingAtomic, error: error_ptr)
+
+                if error_ptr[0]
+                  log_error "Error while saving downloaded file: #{error_description(error_ptr[0])}"
+                  response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), error_description(error_ptr[0]))
+                else
+                  response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), nil)
+                end
+              else
+                log_error "No local save path specified."
+              end
+              Motion::HTTP.logger.log_response(response)
+            end
+            callback.call(response) if callback
+          })
+          task.resume
+        end
+
+        def perform_normal_http_request(ns_url_request, &callback)
           task = @session.dataTaskWithRequest(ns_url_request, completionHandler: -> (data, response, error) {
             if error
-              error_message = "#{error.localizedDescription} #{error.userInfo['NSLocalizedDescriptionKey']}"
-              Motion::HTTP.logger.error("Error while requesting #{@request.url}: #{error_message}")
-              response = Response.new(@request, response&.statusCode, Headers.new(response&.allHeaderFields), error_message)
+              log_error "Error while requesting #{@request.url}: #{error_description(error)}"
+              response = Response.new(@request, response&.statusCode, Headers.new(response&.allHeaderFields), error_description(error))
             else
               response = Response.new(@request, response.statusCode, Headers.new(response.allHeaderFields), data.to_s)
               Motion::HTTP.logger.log_response(response)
@@ -50,6 +87,14 @@ class Motion
 
           # TODO: add other headers
           ns_url_request
+        end
+
+        def log_error(message, error = nil)
+          Motion::HTTP.logger.error(message)
+        end
+
+        def error_description(error)
+          "#{error.localizedDescription} #{error.userInfo['NSLocalizedDescriptionKey']}"
         end
 
         # NSURLSessionTaskDelegate methods
