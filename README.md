@@ -118,6 +118,14 @@ HTTP.post("http://www.example.com/login", form: { user: 'andrew', password: 'sec
 end
 ```
 
+Tp specify a multipart request, pass an array of parts as the `:multipart` option:
+```ruby
+HTTP.post("http://www.example.com/upload",
+  multipart: ['plain text', { filename: 'upload.jpg', data: ns_data_object }) do |response|
+  # ...
+end
+```
+
 Likewise, to send a JSON encoded request body, use the `:json` option:
 ```ruby
 HTTP.post("http://www.example.com/widgets", json: { widget: { name: "Foobar" } }) do |response|
