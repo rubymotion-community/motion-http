@@ -76,6 +76,28 @@ class Motion
             end
           end
 
+          if @request.options[:multipart]
+            boundary = NSUUID.UUID.UUIDString
+            request.setValue("multipart/form-data; boundary=#{boundary}", forHTTPHeaderField: "Content-Type")
+            @request.body = NSMutableData.alloc.init
+            @request.options[:multipart].each do |part|
+              if part.is_a? String
+                part = {
+                  content_type: "text/plain; charset=ISO-8859-1",
+                  data: part
+                }
+              end
+              append_part "--#{boundary}\r\n"
+              # append_part httpBody, "Content-Disposition: form-data; name=\"text\"\r\n"
+              append_part "Content-Type: #{part[:content_type]}\r\n"
+              # append_part httpBody, "Content-Transfer-Encoding: 8bit\r\n"
+              append_part "\r\n"
+              append_part part[:data]
+              append_part "\r\n"
+            end
+            append_part "--#{boundary}--"
+          end
+
           if @request.body
             if @request.body.is_a?(NSData)
               body_data = @request.body
@@ -87,6 +109,14 @@ class Motion
 
           # TODO: add other headers
           ns_url_request
+        end
+
+        def append_part(string_or_data)
+          data = string_or_data
+          if string_or_data.is_a? String
+            data = string_or_data.dataUsingEncoding(NSUTF8StringEncoding)
+          end
+          @request.body.appendData(data)
         end
 
         def log_error(message, error = nil)
